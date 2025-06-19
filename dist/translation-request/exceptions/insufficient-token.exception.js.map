@@ -1,0 +1,1 @@
+{"version":3,"file":"insufficient-token.exception.js","sourceRoot":"","sources":["../../../src/translation-request/exceptions/insufficient-token.exception.ts"],"names":[],"mappings":";;;AAAA,2CAAqD;AAErD,MAAa,0BAA2B,SAAQ,4BAAmB;IACjE;QACE,KAAK,CAAC,EAAE,OAAO,EAAE,uCAAuC,EAAE,CAAC,CAAC;IAC9D,CAAC;CACF;AAJD,gEAIC"}

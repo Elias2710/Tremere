@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  TRANSLATOR
+  ADMIN
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum PaymentPurpose {
+  DEPOSIT
+  REQUEST
+  WITHDRAWAL
+}
+
+enum TranslationRequestStatus {
+    REQUESTING
+    COMPLETED
+}
+
+model User {
+    id Int @default(autoincrement()) @id
+    email String @unique
+    username String @unique
+    password String
+    token Int @default(0)
+    role Role @default(USER)
+
+    messagesSent      Message[] @relation("Sender")
+    messagesReceived  Message[] @relation("Receiver")
+
+    translationRequests TranslationRequest[]
+    payments           Payment[]
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String
+  timestamp  DateTime @default(now())
+  sender     User     @relation("Sender", fields: [senderId], references: [id])
+  senderId   Int
+  receiver   User     @relation("Receiver", fields: [receiverId], references: [id])
+  receiverId Int
+}
+
+model Payment {
+  id                  Int                  @id @default(autoincrement())
+  userId              Int
+  user                User                 @relation(fields: [userId], references: [id])
+  amount              Int                  // In tokens
+  provider            String
+  providerRef         String               @unique
+  status              PaymentStatus        @default(PENDING)
+  purpose             PaymentPurpose
+
+  translationRequest  TranslationRequest?
+
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+}
+
+model TranslationRequest {
+  id                Int       @id @default(autoincrement())
+  title             String
+  authorName        String
+  additionalComment String?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  userId            Int
+  user              User      @relation(fields: [userId], references: [id])
+
+  status            TranslationRequestStatus @default(REQUESTING)
+
+  paymentId         Int       @unique
+  payment           Payment   @relation(fields: [paymentId], references: [id])
+}
